@@ -9,4 +9,4 @@ edition = "2018"
 [dependencies]
 input-linux-sys = "0.3.1"
 libc = "0.2.71"
-keycodes = "0.1.0"
+nix = "0.10.0"
