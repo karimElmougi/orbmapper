@@ -6,7 +6,7 @@ use input_device::InputDevice;
 use keys::Key;
 use virtual_device::VirtualKeyboard;
 
-use input_linux_sys::EV_KEY;
+const KEY_PRESS_EVENT: u16 = input_linux_sys::EV_KEY as u16;
 
 static KEY_MAP: [Key; 26] = [
     Key::Numpad1, // top row begin
@@ -45,7 +45,7 @@ fn main() {
     let orbweaver = InputDevice::new(INPUT_DEVICE_PATH).unwrap();
 
     for key_event in orbweaver {
-        if key_event.type_ != EV_KEY as u16 {
+        if key_event.type_ != KEY_PRESS_EVENT {
             continue;
         }
 
