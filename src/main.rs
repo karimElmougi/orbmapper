@@ -7,8 +7,6 @@ use keys::Key;
 use virtual_device::VirtualKeyboard;
 
 use input_linux_sys::EV_KEY;
-use std::fs::File;
-use std::io::Read;
 
 static KEY_MAP: [Key; 26] = [
     Key::Numpad1, // top row begin
@@ -40,13 +38,11 @@ static KEY_MAP: [Key; 26] = [
 ];
 
 fn main() {
-    let event_id =
-        find_orbweaver_event_id().expect("Couldn't detect any connected Razer Orbweaver");
-
-    println!("Listening on /dev/input/event{}", event_id);
+    const INPUT_DEVICE_PATH: &str = "/dev/input/by-id/usb-Razer_Razer_Orbweaver_Chroma-event-kbd";
+    println!("Listening for keyboard events on {}", INPUT_DEVICE_PATH);
 
     let virtual_keyboard = VirtualKeyboard::new("Orbweaver Remapper".to_string()).unwrap();
-    let orbweaver = InputDevice::new(event_id).unwrap();
+    let orbweaver = InputDevice::new(INPUT_DEVICE_PATH).unwrap();
 
     for key_event in orbweaver {
         if key_event.type_ != EV_KEY as u16 {
@@ -73,33 +69,4 @@ fn event_code_to_keypad_code(event_code: u16) -> Option<usize> {
     ];
 
     EVENT_CODES.iter().position(|&code| code == event_code)
-}
-
-fn find_orbweaver_event_id() -> Option<u8> {
-    let file_content = {
-        let mut devices_file = File::open("/proc/bus/input/devices").unwrap();
-        let mut content = String::new();
-        let _ = devices_file.read_to_string(&mut content);
-        content
-    };
-
-    for device in file_content
-        .split("\n\n")
-        .filter(|d| d.contains("Vendor=1532 Product=0207 Version=0111"))
-    {
-        const HANDLERS_HEADER: &str = "H: Handlers=sysrq kbd event";
-        for line in device.split('\n') {
-            if line.starts_with(HANDLERS_HEADER) && !line.contains("mouse") && line.contains("leds")
-            {
-                let id = &line[HANDLERS_HEADER.len()..]
-                    .split_whitespace()
-                    .next()
-                    .unwrap();
-                let id = id.parse::<u8>().unwrap();
-                return Some(id);
-            }
-        }
-    }
-
-    None
 }
