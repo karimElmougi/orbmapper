@@ -8,27 +8,12 @@ use virtual_device::VirtualKeyboard;
 
 const KEY_PRESS_EVENT: u16 = input_linux_sys::EV_KEY as u16;
 
+#[rustfmt::skip]
 static KEY_MAP: [Key; 26] = [
-    Key::Numpad1, // top row begin
-    Key::Numpad2,
-    Key::Numpad3,
-    Key::Numpad4,
-    Key::Numpad5, // top row end
-    Key::Numpad6, // second row begin
-    Key::Numpad7,
-    Key::Numpad8,
-    Key::Numpad9,
-    Key::Numpad0,   // second row end
-    Key::Keyboard1, // third row begin
-    Key::Keyboard2,
-    Key::Keyboard3,
-    Key::Keyboard4,
-    Key::Keyboard5, // third row end
-    Key::Keyboard6, // bottom row begin
-    Key::Keyboard7,
-    Key::Keyboard8,
-    Key::Keyboard9,
-    Key::Keyboard0, // bottom row end
+    Key::Numpad1,   Key::Numpad2,   Key::Numpad3,   Key::Numpad4,   Key::Numpad5,   // top row
+    Key::Numpad6,   Key::Numpad7,   Key::Numpad8,   Key::Numpad9,   Key::Numpad0,   // second row
+    Key::Keyboard1, Key::Keyboard2, Key::Keyboard3, Key::Keyboard4, Key::Keyboard5, // third row
+    Key::Keyboard6, Key::Keyboard7, Key::Keyboard8, Key::Keyboard9, Key::Keyboard0, // bottom row
     Key::Up,        // side button
     Key::LeftShit,  // up
     Key::Disabled,  // right
@@ -49,24 +34,31 @@ fn main() {
             continue;
         }
 
-        let keypad_code = event_code_to_keypad_code(key_event.code);
-        if keypad_code.is_none() {
-            println!("Couldn't find key code {}", key_event.code);
-            continue;
+        match event_code_to_key(key_event.code) {
+            None => {
+                println!("Couldn't find key code {}", key_event.code);
+                continue;
+            }
+            Some(key) => virtual_keyboard.press(key, key_event.value).unwrap(),
         }
-
-        let keypad_code = keypad_code.unwrap();
-        virtual_keyboard
-            .press(KEY_MAP[keypad_code], key_event.value)
-            .unwrap();
     }
 }
 
-fn event_code_to_keypad_code(event_code: u16) -> Option<usize> {
+fn event_code_to_key(event_code: u16) -> Option<Key> {
+    #[rustfmt::skip]
     static EVENT_CODES: [u16; 26] = [
-        41, 2, 3, 4, 5, 15, 16, 17, 18, 19, 58, 30, 31, 32, 33, 42, 44, 45, 46, 47, 56, 103, 106,
-        108, 105, 57,
+        41, 2,  3,  4,  5,     // top row
+        15, 16, 17, 18, 19, // second row
+        58, 30, 31, 32, 33, // third row
+        42, 44, 45, 46, 47, // bottom row
+        56,                 // side button
+        103,                // up
+        106,                // right
+        108,                // down
+        105,                // left
+        57,                 // space bar
     ];
 
-    EVENT_CODES.iter().position(|&code| code == event_code)
+    let index = EVENT_CODES.iter().position(|&code| code == event_code)?;
+    Some(KEY_MAP[index])
 }

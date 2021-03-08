@@ -1,3 +1,5 @@
+use input_linux_sys::EV_KEY;
+use input_linux_sys::{input_event, timeval};
 use input_linux_sys::{KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9};
 use input_linux_sys::{
     KEY_DOWN, KEY_LEFT, KEY_LEFTALT, KEY_LEFTSHIFT, KEY_RESERVED, KEY_RIGHT, KEY_SPACE, KEY_UP,
@@ -6,7 +8,6 @@ use input_linux_sys::{
     KEY_KP0, KEY_KP1, KEY_KP2, KEY_KP3, KEY_KP4, KEY_KP5, KEY_KP6, KEY_KP7, KEY_KP8, KEY_KP9,
 };
 
-#[allow(dead_code)]
 #[derive(Clone, Copy, PartialEq)]
 pub enum Key {
     Numpad1,
@@ -31,7 +32,9 @@ pub enum Key {
     Keyboard0,
     Up,
     Down,
+    #[allow(dead_code)]
     Left,
+    #[allow(dead_code)]
     Right,
     LeftAlt,
     LeftShit,
@@ -73,10 +76,19 @@ impl Key {
         }) as u16
     }
 
-    pub fn is_disabled(self) -> bool {
-        match self {
-            Key::Disabled => true,
-            _ => false,
+    pub fn input_event(self, value: i32) -> input_event {
+        input_event {
+            code: self.code(),
+            type_: EV_KEY as u16,
+            time: timeval {
+                tv_sec: 0,
+                tv_usec: 0,
+            },
+            value,
         }
+    }
+
+    pub fn is_disabled(self) -> bool {
+        matches!(self, Key::Disabled)
     }
 }
