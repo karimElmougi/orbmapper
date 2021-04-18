@@ -31,6 +31,8 @@ static KEY_MAP: [Key; 26] = [
 ];
 
 fn main() {
+    sudo::escalate_if_needed().unwrap();
+
     const INPUT_DEVICE_PATH: &str = "/dev/input/by-id/usb-Razer_Razer_Orbweaver_Chroma-event-kbd";
     println!("Listening for keyboard events on {}", INPUT_DEVICE_PATH);
 
