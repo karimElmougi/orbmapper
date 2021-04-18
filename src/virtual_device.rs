@@ -6,7 +6,7 @@ use input_linux_sys::{BUS_USB, EV_KEY, EV_SYN};
 use nix::fcntl;
 use nix::sys::stat;
 use nix::unistd;
-use std::mem::size_of;
+use std::{convert::TryInto, mem::size_of};
 use std::slice;
 
 #[derive(Clone, Copy)]
@@ -98,13 +98,13 @@ fn write_event(fd: FileDescriptor, event: input_event) -> Result<(), nix::Error>
 
 fn enable_new_device(uinput_fd: FileDescriptor) -> input_linux_sys::Result<()> {
     unsafe {
-        ui_set_evbit(uinput_fd.raw, EV_KEY)?;
+        ui_set_evbit(uinput_fd.raw, EV_KEY.try_into().unwrap())?;
         for event in 0..255 {
             if ui_set_keybit(uinput_fd.raw, event).is_err() {
                 println!("Failed to UI_SET_EVBIT for event {}", event);
             }
         }
-        ui_set_evbit(uinput_fd.raw, EV_SYN)?;
+        ui_set_evbit(uinput_fd.raw, EV_SYN.try_into().unwrap())?;
     }
     Ok(())
 }

@@ -5,6 +5,6 @@ authors = ["karim"]
 edition = "2018"
 
 [dependencies]
-input-linux-sys = "0.3.1"
-libc = "0.2.71"
-nix = "0.10.0"
+input-linux-sys = "^0.6"
+libc = "^0.2"
+nix = "^0.19"

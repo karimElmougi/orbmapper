@@ -1,4 +1,4 @@
-use input_linux_sys::input_event;
+use libc::input_event;
 use std::fs::File;
 use std::io;
 use std::io::Read;
