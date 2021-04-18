@@ -1,25 +1,33 @@
 mod input_device;
-mod keys;
 mod virtual_device;
 
 use input_device::InputDevice;
-use keys::Key;
 use virtual_device::VirtualKeyboard;
 
-const KEY_PRESS_EVENT: u16 = input_linux_sys::EV_KEY as u16;
+use input_linux::EventKind;
+use input_linux::Key;
+use input_linux::Key::Reserved as Disabled;
+use input_linux::Key::{CapsLock, Grave, LeftAlt, LeftShift, Space, Tab};
+use input_linux::Key::{Down, Left, Right, Up};
+use input_linux::Key::{Kp0, Kp6, Kp7, Kp8, Kp9};
+use input_linux::Key::{Kp1, Kp2, Kp3, Kp4, Kp5};
+use input_linux::Key::{Num0, Num6, Num7, Num8, Num9};
+use input_linux::Key::{Num1, Num2, Num3, Num4, Num5};
+use input_linux::Key::{A, C, D, E, F, Q, R, S, V, W, X, Z};
+use input_linux::KeyEvent;
 
 #[rustfmt::skip]
 static KEY_MAP: [Key; 26] = [
-    Key::Numpad1,   Key::Numpad2,   Key::Numpad3,   Key::Numpad4,   Key::Numpad5,   // top row
-    Key::Numpad6,   Key::Numpad7,   Key::Numpad8,   Key::Numpad9,   Key::Numpad0,   // second row
-    Key::Keyboard1, Key::Keyboard2, Key::Keyboard3, Key::Keyboard4, Key::Keyboard5, // third row
-    Key::Keyboard6, Key::Keyboard7, Key::Keyboard8, Key::Keyboard9, Key::Keyboard0, // bottom row
-    Key::Up,        // side button
-    Key::LeftShit,  // up
-    Key::Disabled,  // right
-    Key::Down,      // down
-    Key::LeftAlt,   // left
-    Key::Space,     // space bar
+    Kp1,   Kp2,   Kp3,   Kp4,   Kp5,    // top row
+    Kp6,   Kp7,   Kp8,   Kp9,   Kp0,    // second row
+    Num1, Num2, Num3, Num4, Num5,       // third row
+    Num6, Num7, Num8, Num9, Num0,       // bottom row
+    Up,                                 // side button
+    LeftShift,                          // up
+    Disabled,                           // right
+    Down,                               // down
+    LeftAlt,                            // left
+    Space,                              // space bar
 ];
 
 fn main() {
@@ -29,36 +37,39 @@ fn main() {
     let virtual_keyboard = VirtualKeyboard::new("Orbweaver Remapper".to_string()).unwrap();
     let orbweaver = InputDevice::new(INPUT_DEVICE_PATH).unwrap();
 
-    for key_event in orbweaver {
-        if key_event.type_ != KEY_PRESS_EVENT {
+    for input_event in orbweaver {
+        if input_event.kind != EventKind::Key {
             continue;
         }
 
-        match event_code_to_key(key_event.code) {
+        let key_event = unsafe { KeyEvent::from_event(&input_event) }.clone();
+
+        match remap(key_event) {
             None => {
-                println!("Couldn't find key code {}", key_event.code);
+                eprintln!("Couldn't find key code {:?}", key_event.key);
                 continue;
             }
-            Some(key) => virtual_keyboard.press(key, key_event.value).unwrap(),
+            Some(key_event) => virtual_keyboard.emit(key_event).unwrap(),
         }
     }
 }
 
-fn event_code_to_key(event_code: u16) -> Option<Key> {
+fn remap(mut key_event: KeyEvent) -> Option<KeyEvent> {
     #[rustfmt::skip]
-    static EVENT_CODES: [u16; 26] = [
-        41, 2,  3,  4,  5,     // top row
-        15, 16, 17, 18, 19, // second row
-        58, 30, 31, 32, 33, // third row
-        42, 44, 45, 46, 47, // bottom row
-        56,                 // side button
-        103,                // up
-        106,                // right
-        108,                // down
-        105,                // left
-        57,                 // space bar
+    static EVENT_CODES: [Key; 26] = [
+        Grave, Num1,  Num2,  Num3,  Num4,   // top row
+        Tab, Q, W, E, R,                    // second row
+        CapsLock, A, S, D, F,               // third row
+        LeftShift, Z, X, C, V,              // bottom row
+        LeftAlt,                            // side button
+        Up,                                 // up
+        Right,                              // right
+        Down,                               // down
+        Left,                               // left
+        Space,                              // space bar
     ];
 
-    let index = EVENT_CODES.iter().position(|&code| code == event_code)?;
-    Some(KEY_MAP[index])
+    let index = EVENT_CODES.iter().position(|&key| key == key_event.key)?;
+    key_event.key = KEY_MAP[index];
+    Some(key_event)
 }
