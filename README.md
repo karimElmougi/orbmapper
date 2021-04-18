@@ -5,10 +5,10 @@ remapped keys will be sent.
 
 The mapping can be edited through the `KEY_MAP` constant in `main.rs`.
 
-## Installation
+## Installation from source
 
 ```sh
-$ cargo install
+$ cargo install --git https://github.com/karimElmougi/orbmapper
 ```
 
 ## Usage
