@@ -53,6 +53,6 @@ impl Iterator for InputDevice {
         self.index += 1;
         self.buffer_size -= 1;
 
-        Some(InputEvent::from_raw(event).map(|e| e.clone()).unwrap())
+        Some(*InputEvent::from_raw(event).unwrap())
     }
 }

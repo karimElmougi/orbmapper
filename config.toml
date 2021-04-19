@@ -1,0 +1,15 @@
+# Refer to https://docs.rs/input-linux/0.4.0/input_linux/enum.Key.html 
+# for the values each key corresponds to
+
+# To disable a key, simply remap it to "Reserved"
+
+top_row = ["Kp1", "Kp2", "Kp3", "Kp4", "Kp5"]
+second_row = ["Kp6", "Kp7", "Kp8", "Kp9", "Kp0"]
+third_row = ["Num1", "Num2", "Num3", "Num4", "Num5"]
+bottom_row = ["Num6", "Num7", "Num8", "Num9", "Num0"]
+up = "LeftShift"
+down = "Down"
+left = "LeftAlt"
+right = "Reserved"
+side_button = "Up"
+space_bar = "Space"
