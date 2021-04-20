@@ -5,6 +5,9 @@ authors = ["karim"]
 edition = "2018"
 publish = false
 
+[package.metadata.release]
+no-dev-version = true
+
 [dependencies.input-linux]
 version = "^0.4"
 features = ["with-serde"]
