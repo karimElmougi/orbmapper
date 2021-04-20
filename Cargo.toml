@@ -9,6 +9,18 @@ publish = false
 no-dev-version = true
 
 [[package.metadata.release.pre-release-replacements]]
+file="README.md"
+search="releases/download/.*/orbmapper"
+replace="releases/download/{{version}}/orbmapper"
+exactly=1
+
+[[package.metadata.release.pre-release-replacements]]
+file="README.md"
+search="--branch .*"
+replace="--branch {{version}}"
+exactly=1
+
+[[package.metadata.release.pre-release-replacements]]
 file = "CHANGELOG.md"
 search = "Unreleased"
 replace = "{{version}}"
