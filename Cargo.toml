@@ -49,18 +49,18 @@ replace = "<!-- next-url -->\n[Unreleased]: https://github.com/karimElmougi/orbm
 exactly = 1
 
 [dependencies.input-linux]
-version = "^0.4"
+version = "0.5"
 features = ["with-serde"]
 
 [dependencies]
-input-linux-sys = "^0.6"
-libc = "^0.2"
-nix = "^0.19"
-anyhow = "^1"
-sudo = "^0.5"
-serde = "^1"
-serde_derive = "^1"
-toml = "^0.5"
-structopt = "^0.3"
-arrayvec = "^0.7"
+input-linux-sys = "0.7"
+libc = "0.2"
+nix = "^0.22"
+anyhow = "1"
+sudo = "0.6"
+serde = "1"
+serde_derive = "1"
+toml = "0.5"
+structopt = "0.3"
+arrayvec = "0.7"
 
